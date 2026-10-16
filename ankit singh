@@ -1,0 +1,130 @@
+string toLowerTrim(const string& s){
+    string out;
+    for (char c : s)
+        if (!isspace((unsigned char)c) || (!out.empty() && out.back() != ' '))
+            out += isspace((unsigned char)c) ? ' ' : (char)tolower((unsigned char)c);
+    while (!out.empty() && out.back() == ' ') out.pop_back();
+    return out;
+}
+
+
+
+
+
+
+class TrieNode {
+public:
+    map<char, TrieNode*> children;
+    bool isEnd = false;
+};
+
+
+
+class Trie {
+private:
+    TrieNode* root;
+
+    void collect(TrieNode* node, string cur, vector<string>& out) {
+        if (node->isEnd) out.push_back(cur);
+        for (auto& p : node->children) collect(p.second, cur + p.first, out);
+    }
+
+public:
+    Trie() { root = new TrieNode(); }
+
+    void insert(const string& word) {
+        TrieNode* node = root;
+        for (char c : word) {
+            if (!node->children.count(c)) node->children[c] = new TrieNode();
+            node = node->children[c];
+        }
+        node->isEnd = true;
+    }
+
+    vector<string> autocomplete(const string& prefix) {
+        TrieNode* node = root;
+        vector<string> result;
+        for (char c : prefix) {
+            if (!node->children.count(c))
+                  return result;
+            node = node->children[c];
+        }
+        collect(node, prefix, result);
+        return result;
+    }
+};
+
+
+
+
+
+
+
+
+
+
+class SymptomMatcher {
+private:
+    Trie trie;
+    unordered_map<string, vector<int>> index;  
+
+public:
+    void build(const vector<Condition>& conditions) {
+        for (int i = 0; i < (int)conditions.size(); i++)
+            for (auto& s : conditions[i].getSymptoms()) {
+                trie.insert(s.first);
+                index[s.first].push_back(i);
+            }
+    }
+
+   
+    vector<string> parseInput(string line) {
+        line = toLowerTrim(line);
+        size_t pos;
+        while ((pos = line.find(" and ")) != string::npos)
+                line.replace(pos, 5, ",");
+        vector<string> tokens;
+        stringstream ss(line);
+        string item;
+        while (getline(ss, item, ',')) {
+            item = toLowerTrim(item);
+            if (!item.empty() && find(tokens.begin(), tokens.end(), item) == tokens.end())
+                tokens.push_back(item);
+        }
+        return tokens;
+    }
+
+
+
+
+
+    
+    vector<string> match(const string& line, vector<string>& unknown) {
+        vector<string> recognized;
+        for (const string& tok : parseInput(line)) {
+            if (index.count(tok)) {                     
+                recognized.push_back(tok);
+            } else {
+                vector<string> sug = trie.autocomplete(tok);   
+                if (sug.size() == 1) 
+                  recognized.push_back(sug[0]);
+                else unknown.push_back(tok);
+            }
+        }
+        if (recognized.empty()) {
+            string all;
+            for (auto& u : unknown) 
+            all += u + " ";
+            throw UnrecognizedSymptomException(all.empty() ? "(nothing entered)" : all);
+        }
+        return recognized;
+    }
+
+
+    const unordered_map<string, vector<int>>& getIndex() const { 
+        return index;
+     }
+    vector<string> suggest(const string& prefix) {
+         return trie.autocomplete(prefix);
+         }
+};
