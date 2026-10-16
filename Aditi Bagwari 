@@ -1,0 +1,98 @@
+class SpecialistMap {
+private:
+    unordered_map<string, string> table;   // condition name -> specialist
+public:
+    void build(const vector<Condition>& conditions) {
+        for (auto& c : conditions) table[c.getName()] = c.getSpecialist();
+    }
+    string get(const string& condition) const {
+        auto it = table.find(condition);
+        if (it == table.end()) throw NoMatchException();
+        return it->second;
+    }
+};
+
+vector<Doctor> loadDoctors() {
+    return {
+        Doctor("Dr. Meera Sharma", "General Physician", 12, 4.5, "City Care Hospital"),
+        Doctor("Dr. Rohan Verma",  "General Physician",  6, 4.1, "Green Valley Clinic"),
+        Doctor("Dr. Anil Kapoor",  "Cardiologist",      25, 4.8, "City Care Hospital"),
+        Doctor("Dr. Vikram Joshi", "Neurologist",       18, 4.7, "Apex Institute"),
+        Doctor("Dr. Imran Khan",   "Pulmonologist",     20, 4.6, "City Care Hospital"),
+        Doctor("Dr. Neha Gupta",   "Gastroenterologist",11, 4.4, "Sunrise Medical Centre"),
+        Doctor("Dr. Arvind Menon", "Endocrinologist",   14, 4.5, "Sunrise Medical Centre"),
+        Doctor("Dr. Kavita Singh", "Dermatologist",      8, 4.3, "Green Valley Clinic"),
+        Doctor("Dr. Rajesh Pillai","ENT Specialist",    16, 4.4, "City Care Hospital"),
+    };
+}
+
+// basic version: just lists the doctors of that specialty (ranking comes later)
+void showDoctors(const vector<Doctor>& doctors, const string& specialty) {
+    bool found = false;
+    for (auto& d : doctors)
+        if (d.getSpecialty() == specialty) {
+            cout << "    - " << d.getName() << " | " << d.getExperience() << " yrs | rating "
+                 << d.getRating() << " | " << d.getHospital() << "\n";
+            found = true;
+        }
+    if (!found) cout << "    No doctor found for this specialty.\n";
+}
+
+// ############################################################################
+//  Condition dataset (shared by the team)
+// ############################################################################
+
+vector<Condition> loadConditions() {
+    vector<Condition> v;
+
+    Condition cold("Common Cold", "General Physician", LOW,
+                   "Rest, drink warm fluids and gargle with warm salt water.");
+    cold.addSymptom("runny nose", 3); cold.addSymptom("sneezing", 3);
+    cold.addSymptom("sore throat", 2); cold.addSymptom("cough", 2);
+    v.push_back(cold);
+
+    Condition flu("Influenza", "General Physician", MODERATE,
+                  "Rest and drink plenty of fluids; see a doctor if it lasts over 3 days.");
+    flu.addSymptom("fever", 4); flu.addSymptom("body ache", 3); flu.addSymptom("cough", 2);
+    flu.addSymptom("fatigue", 3); flu.addSymptom("headache", 2); flu.addSymptom("chills", 3);
+    v.push_back(flu);
+
+    Condition migraine("Migraine", "Neurologist", MODERATE,
+                       "Rest in a dark, quiet room and stay hydrated.");
+    migraine.addSymptom("headache", 4); migraine.addSymptom("nausea", 2);
+    migraine.addSymptom("light sensitivity", 4); migraine.addSymptom("dizziness", 2);
+    v.push_back(migraine);
+
+    Condition gastro("Gastroenteritis", "Gastroenterologist", MODERATE,
+                     "Take oral rehydration solution and eat light, bland food.");
+    gastro.addSymptom("nausea", 3); gastro.addSymptom("vomiting", 4);
+    gastro.addSymptom("diarrhea", 4); gastro.addSymptom("stomach pain", 3);
+    v.push_back(gastro);
+
+    Condition asthma("Asthma", "Pulmonologist", HIGH,
+                     "Sit upright, stay calm and use your inhaler if prescribed.");
+    asthma.addSymptom("wheezing", 4); asthma.addSymptom("shortness of breath", 4);
+    asthma.addSymptom("cough", 2); asthma.addSymptom("chest tightness", 3);
+    v.push_back(asthma);
+
+    Condition heart("Heart Attack", "Cardiologist", EMERGENCY, "Seek emergency care immediately.");
+    heart.addSymptom("chest pain", 5); heart.addSymptom("shortness of breath", 3);
+    heart.addSymptom("left arm pain", 4); heart.addSymptom("sweating", 3);
+    v.push_back(heart);
+
+    Condition diabetes("Type 2 Diabetes", "Endocrinologist", MODERATE,
+                       "Avoid sugary food and get a blood sugar test done.");
+    diabetes.addSymptom("frequent urination", 4); diabetes.addSymptom("excessive thirst", 4);
+    diabetes.addSymptom("fatigue", 2); diabetes.addSymptom("weight loss", 2);
+    v.push_back(diabetes);
+
+    Condition eczema("Eczema", "Dermatologist", LOW,
+                     "Moisturize regularly and avoid scratching the area.");
+    eczema.addSymptom("itching", 4); eczema.addSymptom("skin rash", 4);
+    eczema.addSymptom("dry skin", 3);
+    v.push_back(eczema);
+
+    return v;
+}
+
+// ############################################################################
