@@ -1,6 +1,4 @@
 
-
-
 class TrieNode {
 public:
     map<char, TrieNode*> next;
@@ -10,8 +8,6 @@ public:
     TrieNode(const TrieNode&) = delete;
     TrieNode& operator=(const TrieNode&) = delete;
 };
-
-
 
 class Trie {
     TrieNode* root;
