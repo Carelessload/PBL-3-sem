@@ -8,14 +8,14 @@ string toLowerTrim(const string& s){
 }
 
 
-
-
-
-
 class TrieNode {
 public:
-    map<char, TrieNode*> children;
-    bool isEnd = false;
+    map<char, TrieNode*> next;
+    bool isEnd;
+    TrieNode() : isEnd(false) {}
+    ~TrieNode() { for (auto& p : next) delete p.second; }
+    TrieNode(const TrieNode&) = delete;
+    TrieNode& operator=(const TrieNode&) = delete;
 };
 
 
