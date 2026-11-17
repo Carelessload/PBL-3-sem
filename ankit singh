@@ -96,54 +96,39 @@ void build(const vector<Condition>& conditions) {
         return it == index.end() ? none : it->second;
     }
     
-   
-    vector<string> parseInput(string line) {
-        line = toLowerTrim(line);
+   vector<string> parse(const string& raw) const {
+        string line = normalize(raw);
+        replace(line.begin(), line.end(), ';', ',');
         size_t pos;
-        while ((pos = line.find(" and ")) != string::npos)
-                line.replace(pos, 5, ",");
+        while ((pos = line.find(" and ")) != string::npos) line.replace(pos, 5, ",");
         vector<string> tokens;
-        stringstream ss(line);
-        string item;
-        while (getline(ss, item, ',')) {
-            item = toLowerTrim(item);
-            if (!item.empty() && find(tokens.begin(), tokens.end(), item) == tokens.end())
-                tokens.push_back(item);
+        for (const string& part : split(line, ',')) {
+            string t = normalize(part);
+            if (!t.empty() && find(tokens.begin(), tokens.end(), t) == tokens.end()) tokens.push_back(t);
         }
         return tokens;
     }
 
-
-
-
-
-    
-    vector<string> match(const string& line, vector<string>& unknown) {
-        vector<string> recognized;
-        for (const string& tok : parseInput(line)) {
-            if (index.count(tok)) {                     
-                recognized.push_back(tok);
-            } else {
-                vector<string> sug = trie.autocomplete(tok);   
-                if (sug.size() == 1) 
-                  recognized.push_back(sug[0]);
-                else unknown.push_back(tok);
-            }
-        }
-        if (recognized.empty()) {
-            string all;
-            for (auto& u : unknown) 
-            all += u + " ";
-            throw UnrecognizedSymptomException(all.empty() ? "(nothing entered)" : all);
-        }
-        return recognized;
+    string resolve(const string& token) const {
+        string t = token;
+        unordered_map<string, string>::const_iterator syn = synonyms.find(t);
+        if (syn != synonyms.end()) t = syn->second;
+        if (index.count(t)) return t;
+        vector<string> options = trie.startsWith(t);
+        return options.size() == 1 ? options[0] : "";
     }
 
+    vector<string> match(const string& line, vector<string>& unknown) const {
+        vector<string> found;
+        for (const string& tok : parse(line)) {
+            string r = resolve(tok);
+            if (r.empty()) unknown.push_back(tok);
+            else if (find(found.begin(), found.end(), r) == found.end()) found.push_back(r);
+        }
+        if (found.empty())
+            throw UnrecognizedSymptomException(unknown.empty() ? string("(nothing entered)") : join(unknown, ", "));
+        return found;
+    }
 
-    const unordered_map<string, vector<int>>& getIndex() const { 
-        return index;
-     }
-    vector<string> suggest(const string& prefix) {
-         return trie.autocomplete(prefix);
-         }
+    vector<string> suggest(const string& prefix) const { return trie.startsWith(normalize(prefix)); }
 };
