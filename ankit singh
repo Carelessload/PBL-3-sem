@@ -52,20 +52,10 @@ public:
         return out;
     }
 };
-
-
-
-
-
-
-
-
-
-
 class SymptomMatcher {
-private:
     Trie trie;
-    unordered_map<string, vector<int>> index;  
+    unordered_map<string, vector<int>> index;
+    unordered_map<string, string> synonyms;
 
 public: 
 SymptomMatcher() {
