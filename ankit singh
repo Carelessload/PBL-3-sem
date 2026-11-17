@@ -82,15 +82,20 @@ SymptomMatcher() {
             {"thirsty", "excessive thirst"}, {"fainting", "loss of consciousness"},
             {"passed out", "loss of consciousness"}};
     }
-
-    void build(const vector<Condition>& conditions) {
-        for (int i = 0; i < (int)conditions.size(); i++)
+void build(const vector<Condition>& conditions) {
+        for (size_t i = 0; i < conditions.size(); i++)
             for (auto& s : conditions[i].getSymptoms()) {
                 trie.insert(s.first);
-                index[s.first].push_back(i);
+                index[s.first].push_back((int)i);
             }
     }
 
+    const vector<int>& conditionsFor(const string& symptom) const {
+        static const vector<int> none;
+        unordered_map<string, vector<int>>::const_iterator it = index.find(symptom);
+        return it == index.end() ? none : it->second;
+    }
+    
    
     vector<string> parseInput(string line) {
         line = toLowerTrim(line);
