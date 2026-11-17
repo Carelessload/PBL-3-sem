@@ -1,11 +1,4 @@
-string toLowerTrim(const string& s){
-    string out;
-    for (char c : s)
-        if (!isspace((unsigned char)c) || (!out.empty() && out.back() != ' '))
-            out += isspace((unsigned char)c) ? ' ' : (char)tolower((unsigned char)c);
-    while (!out.empty() && out.back() == ' ') out.pop_back();
-    return out;
-}
+
 
 
 class TrieNode {
