@@ -111,3 +111,28 @@ void build(const vector<Condition>& conditions) {
 
     vector<string> suggest(const string& prefix) const { return trie.startsWith(normalize(prefix)); }
 };
+vector<string> t = matcher.parse("  Fever,  COUGH and   headache ");
+        check(t.size() == 3 && t[0] == "fever" && t[2] == "headache", "parse 'Fever, COUGH and headache' into 3 tokens");
+
+        vector<string> unk, r = matcher.match("tummy ache", unk);
+        check(r.size() == 1 && r[0] == "stomach pain", "synonym 'tummy ache' -> stomach pain");
+
+        unk.clear();
+        r = matcher.match("shortness", unk);
+        check(r.size() == 1 && r[0] == "shortness of breath", "unique prefix 'shortness' resolved by trie");
+
+        unk.clear();
+        r = matcher.match("chest, fever", unk);
+        check(r.size() == 1 && r[0] == "fever" && unk.size() == 1, "ambiguous prefix 'chest' is NOT guessed");
+
+        unk.clear();
+        check(matcher.match("fever, fever, Fever", unk).size() == 1, "duplicate symptoms are counted once");
+
+        bool threw = false;
+        try { unk.clear(); matcher.match("xyzabc", unk); } catch (const UnrecognizedSymptomException&) { threw = true; }
+        check(threw, "unknown symptom throws UnrecognizedSymptomException");
+
+        threw = false;
+        try { unk.clear(); matcher.match("   ", unk); } catch (const UnrecognizedSymptomException&) { threw = true; }
+        check(threw, "empty input throws UnrecognizedSymptomException");
+    }
