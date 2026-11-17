@@ -21,36 +21,35 @@ public:
 
 
 class Trie {
-private:
     TrieNode* root;
-
-    void collect(TrieNode* node, string cur, vector<string>& out) {
-        if (node->isEnd) out.push_back(cur);
-        for (auto& p : node->children) collect(p.second, cur + p.first, out);
+    void collect(const TrieNode* n, const string& cur, vector<string>& out) const {
+        if (n->isEnd) out.push_back(cur);
+        for (auto& p : n->next) collect(p.second, cur + p.first, out);
     }
-
 public:
-    Trie() { root = new TrieNode(); }
+    Trie() : root(new TrieNode()) {}
+    ~Trie() { delete root; }
+    Trie(const Trie&) = delete;
+    Trie& operator=(const Trie&) = delete;
 
     void insert(const string& word) {
-        TrieNode* node = root;
+        TrieNode* n = root;
         for (char c : word) {
-            if (!node->children.count(c)) node->children[c] = new TrieNode();
-            node = node->children[c];
+            if (!n->next.count(c)) n->next[c] = new TrieNode();
+            n = n->next[c];
         }
-        node->isEnd = true;
+        n->isEnd = true;
     }
-
-    vector<string> autocomplete(const string& prefix) {
-        TrieNode* node = root;
-        vector<string> result;
+    vector<string> startsWith(const string& prefix) const {
+        vector<string> out;
+        const TrieNode* n = root;
         for (char c : prefix) {
-            if (!node->children.count(c))
-                  return result;
-            node = node->children[c];
+            map<char, TrieNode*>::const_iterator it = n->next.find(c);
+            if (it == n->next.end()) return out;
+            n = it->second;
         }
-        collect(node, prefix, result);
-        return result;
+        collect(n, prefix, out);
+        return out;
     }
 };
 
