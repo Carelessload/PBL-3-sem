@@ -67,7 +67,22 @@ private:
     Trie trie;
     unordered_map<string, vector<int>> index;  
 
-public:
+public: 
+SymptomMatcher() {
+        synonyms = {
+            {"high temperature", "fever"}, {"temperature", "fever"}, {"tired", "fatigue"},
+            {"tiredness", "fatigue"}, {"weakness", "fatigue"}, {"throwing up", "vomiting"},
+            {"vomit", "vomiting"}, {"loose motion", "diarrhea"}, {"loose motions", "diarrhea"},
+            {"tummy ache", "stomach pain"}, {"stomach ache", "stomach pain"},
+            {"belly pain", "stomach pain"}, {"breathlessness", "shortness of breath"},
+            {"difficulty breathing", "shortness of breath"}, {"dizzy", "dizziness"},
+            {"itchy", "itching"}, {"rash", "skin rash"}, {"body pain", "body ache"},
+            {"heart pain", "chest pain"}, {"stuffy nose", "nasal congestion"},
+            {"blocked nose", "nasal congestion"}, {"joint ache", "joint pain"},
+            {"thirsty", "excessive thirst"}, {"fainting", "loss of consciousness"},
+            {"passed out", "loss of consciousness"}};
+    }
+
     void build(const vector<Condition>& conditions) {
         for (int i = 0; i < (int)conditions.size(); i++)
             for (auto& s : conditions[i].getSymptoms()) {
